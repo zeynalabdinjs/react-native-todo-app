@@ -21,7 +21,7 @@ function App(): React.JSX.Element {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{title: 'Welcome'}}
+          options={{title: 'Todo create container'}}
         />
         <Stack.Screen name="Profile" component={ProfileScreen} />
       </Stack.Navigator>
