@@ -5,8 +5,10 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  ScrollView,
+  Alert,
+  Modal,
   TextInput,
+  Pressable,
 } from 'react-native';
 import React, {useState} from 'react';
 import uuid from 'react-native-uuid';
@@ -18,6 +20,12 @@ interface todoType {
   isCompleted: boolean;
 }
 const HomeScreen = ({navigation}: any) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [edit, setEdit] = useState<todoType>({
+    id: '',
+    content: 'Todo 1',
+    isCompleted: false,
+  });
   const [value, setValue] = useState('');
   const [todos, setTodos] = useState<todoType[]>([
     {
@@ -65,12 +73,14 @@ const HomeScreen = ({navigation}: any) => {
     setTodos(updatedTodos);
   };
 
+  console.log(edit);
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Todo app</Text>
 
       <View style={styles.inputContainer}>
-        <TextInput value={value} onChangeText={setValue} style={styles.input} />
+        <TextInput value={value} onChangeText={setValue} style={styles.input} placeholder='Type here' />
         <Button
           title="Add"
           color={Colors.confirm}
@@ -91,7 +101,13 @@ const HomeScreen = ({navigation}: any) => {
               {item.content}
             </Text>
             <View style={styles.row}>
-              <Button title="Edit" color={Colors.confirm}></Button>
+              <Button
+                title="Edit"
+                color={Colors.confirm}
+                onPress={() => {
+                  setModalVisible(true);
+                  setEdit(item);
+                }}></Button>
               <Button
                 title="Delete"
                 color={Colors.invalid}
@@ -102,12 +118,40 @@ const HomeScreen = ({navigation}: any) => {
         keyExtractor={item => item.id.toString()}
       />
 
-      {/* <View style={styles.button}>
-        <Button
-          title="Go to profile"
-          onPress={() => navigation.navigate('Profile', {name: 'profile'})}
-        />
-      </View> */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setModalVisible(!modalVisible);
+        }}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: Colors.dark,
+            display: 'flex',
+            justifyContent: "center",
+            flexDirection: "column",
+            paddingHorizontal: 10,
+            gap: 10
+          }}>
+          <TextInput
+            value={edit.content}
+            onChangeText={e => {
+              setEdit((prev: any) => ({...prev, content: e}));
+            }}
+            style={styles.input}
+          />
+          <Button
+            title="Submit"
+            color={Colors.confirm}
+            onPress={() => {
+              editTodo(edit.id, edit.content);
+              setModalVisible(false);
+            }}></Button>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -157,8 +201,11 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: Colors.light2,
-    flex: 1,
+    flexShrink: 1,
+    width: "100%",
     borderRadius: 6,
+    height: 40,
+    paddingLeft: 10
   },
 });
 
